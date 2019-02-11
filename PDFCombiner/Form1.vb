@@ -26,29 +26,33 @@ Public Class Form1
         Close()
     End Sub
 
+    Sub LoadPDF(filename As String)
+        currentFile = filename
+        lblFile.Text = currentFile
+
+
+        Dim settings As New ImageMagick.MagickReadSettings
+        settings.Density = New ImageMagick.Density(10)
+
+        images.Read(currentFile)
+
+        lstPreview.Items.Clear()
+        imgPreview = New ImageList()
+        imgPreview.ImageSize = New Size(100, 100)
+        For page As Integer = 1 To images.Count
+            lstPreview.Items.Add(page.ToString, page - 1)
+            imgPreview.Images.Add(images(page - 1).ToBitmap)
+        Next
+
+        lstPreview.View = View.LargeIcon
+        lstPreview.LargeImageList = imgPreview
+    End Sub
+
     Private Sub OpenToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenToolStripMenuItem.Click
         Dim dlgOpen As New OpenFileDialog
         dlgOpen.Filter = "PDF files|*.pdf"
         If dlgOpen.ShowDialog = DialogResult.OK Then
-            currentFile = dlgOpen.FileName
-            lblFile.Text = currentFile
-
-
-            Dim settings As New ImageMagick.MagickReadSettings
-            settings.Density = New ImageMagick.Density(10)
-
-            images.Read(currentFile)
-
-            lstPreview.Items.Clear()
-            imgPreview = New ImageList()
-            imgPreview.ImageSize = New Size(100, 100)
-            For page As Integer = 1 To images.Count
-                lstPreview.Items.Add(page.ToString, page - 1)
-                imgPreview.Images.Add(images(page - 1).ToBitmap)
-            Next
-
-            lstPreview.View = View.LargeIcon
-            lstPreview.LargeImageList = imgPreview
+            LoadPDF(dlgOpen.FileName)
 
         End If
     End Sub
@@ -62,13 +66,17 @@ Public Class Form1
     End Sub
 
 
-    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+    Sub AddSelected()
         For Each item As ListViewItem In lstPreview.SelectedItems
             Dim page As Integer = item.Text
             Dim details As New PDFPage(currentFile, page)
             details.imagePreview = images(page - 1).ToBitmap
             lstPages.Items.Add(details)
         Next
+    End Sub
+
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        AddSelected()
     End Sub
 
 
@@ -146,5 +154,28 @@ Public Class Form1
             lstPages.Items.Insert(i, page)
             lstPages.SetSelected(i, True)
         End If
+    End Sub
+
+
+    Private Sub lstPages_DragEnter(sender As Object, e As DragEventArgs) Handles lstPages.DragEnter
+        If e.Data.GetDataPresent(DataFormats.FileDrop) Then
+            e.Effect = DragDropEffects.Copy
+        Else
+            e.Effect = DragDropEffects.None
+        End If
+    End Sub
+
+    Private Sub lstPages_DragDrop_1(sender As Object, e As DragEventArgs) Handles lstPages.DragDrop
+
+        Dim filenames() As String = e.Data.GetData(DataFormats.FileDrop)
+        For Each filename As String In filenames
+            LoadPDF(filename)
+            For Each item As ListViewItem In lstPreview.Items
+                item.Selected = True
+            Next
+            AddSelected()
+        Next
+
+
     End Sub
 End Class

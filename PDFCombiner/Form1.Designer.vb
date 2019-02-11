@@ -104,6 +104,7 @@ Partial Class Form1
         '
         'lstPages
         '
+        Me.lstPages.AllowDrop = True
         Me.lstPages.Dock = System.Windows.Forms.DockStyle.Fill
         Me.lstPages.FormattingEnabled = True
         Me.lstPages.Location = New System.Drawing.Point(3, 263)
