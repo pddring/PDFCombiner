@@ -27,7 +27,6 @@ Partial Class Form1
         Me.OpenToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.txtOutput = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.lstPages = New System.Windows.Forms.ListBox()
         Me.lblFile = New System.Windows.Forms.Label()
@@ -43,6 +42,7 @@ Partial Class Form1
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
         Me.FlowLayoutPanel2 = New System.Windows.Forms.FlowLayoutPanel()
+        Me.txtTopic = New System.Windows.Forms.TextBox()
         Me.menuMain.SuspendLayout()
         CType(Me.picPreview, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.statusStrip.SuspendLayout()
@@ -86,21 +86,14 @@ Partial Class Form1
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(103, 22)
         Me.ExitToolStripMenuItem.Text = "E&xit"
         '
-        'txtOutput
-        '
-        Me.txtOutput.Location = New System.Drawing.Point(51, 3)
-        Me.txtOutput.Name = "txtOutput"
-        Me.txtOutput.Size = New System.Drawing.Size(489, 20)
-        Me.txtOutput.TabIndex = 1
-        '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(3, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(42, 13)
+        Me.Label1.Size = New System.Drawing.Size(37, 13)
         Me.Label1.TabIndex = 2
-        Me.Label1.Text = "Output:"
+        Me.Label1.Text = "Topic:"
         '
         'lstPages
         '
@@ -243,12 +236,19 @@ Partial Class Form1
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.FlowLayoutPanel2, 2)
         Me.FlowLayoutPanel2.Controls.Add(Me.Label1)
-        Me.FlowLayoutPanel2.Controls.Add(Me.txtOutput)
+        Me.FlowLayoutPanel2.Controls.Add(Me.txtTopic)
         Me.FlowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.FlowLayoutPanel2.Location = New System.Drawing.Point(3, 523)
         Me.FlowLayoutPanel2.Name = "FlowLayoutPanel2"
         Me.FlowLayoutPanel2.Size = New System.Drawing.Size(920, 31)
         Me.FlowLayoutPanel2.TabIndex = 8
+        '
+        'txtTopic
+        '
+        Me.txtTopic.Location = New System.Drawing.Point(46, 3)
+        Me.txtTopic.Name = "txtTopic"
+        Me.txtTopic.Size = New System.Drawing.Size(187, 20)
+        Me.txtTopic.TabIndex = 3
         '
         'Form1
         '
@@ -281,7 +281,6 @@ Partial Class Form1
     Friend WithEvents FileToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents OpenToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents txtOutput As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents lstPages As ListBox
     Friend WithEvents lblFile As Label
@@ -298,4 +297,5 @@ Partial Class Form1
     Friend WithEvents TableLayoutPanel2 As TableLayoutPanel
     Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
     Friend WithEvents FlowLayoutPanel2 As FlowLayoutPanel
+    Friend WithEvents txtTopic As TextBox
 End Class

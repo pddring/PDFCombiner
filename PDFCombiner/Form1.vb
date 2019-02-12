@@ -1,4 +1,5 @@
-﻿Imports PdfSharp.Pdf
+﻿Imports PdfSharp.Drawing
+Imports PdfSharp.Pdf
 Imports PdfSharp.Pdf.IO
 
 Public Class Form1
@@ -11,14 +12,17 @@ Public Class Form1
         Public Filename As String
         Public PageNumber As Integer
         Public imagePreview As Bitmap
+        Public Topic As String
+        Protected ShortFilename
 
         Public Sub New(currentFile As String, pageNumber As Integer)
             Me.Filename = currentFile
+            ShortFilename = My.Computer.FileSystem.GetName(Filename)
             Me.PageNumber = pageNumber
         End Sub
 
         Public Overrides Function ToString() As String
-            Return Filename & ": Page " & PageNumber
+            Return Topic & ":" & ShortFilename & ": Page " & PageNumber
         End Function
     End Class
 
@@ -65,11 +69,11 @@ Public Class Form1
 
     End Sub
 
-
     Sub AddSelected()
         For Each item As ListViewItem In lstPreview.SelectedItems
             Dim page As Integer = item.Text
             Dim details As New PDFPage(currentFile, page)
+            details.Topic = txtTopic.Text
             details.imagePreview = images(page - 1).ToBitmap
             lstPages.Items.Add(details)
         Next
@@ -84,41 +88,46 @@ Public Class Form1
         If Not IsNothing(lstPages.SelectedItem) Then
             Dim page As PDFPage = lstPages.SelectedItem
             picPreview.BackgroundImage = page.imagePreview
+            txtTopic.Text = page.Topic
         End If
     End Sub
 
-    Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
-        If txtOutput.Text = "" Then
-            Dim dlg As New SaveFileDialog
-            dlg.Filter = "PDF Files|*.pdf"
-            If dlg.ShowDialog() = DialogResult.OK Then
-                txtOutput.Text = dlg.FileName
+    Sub SavePDF(filename As String)
+        'Dim inputPDF As PdfDocument = PdfReader.Open(currentFile)
+        Dim outputPDF As PdfDocument = New PdfDocument()
+
+        pbStatus.Visible = True
+        pbStatus.Maximum = lstPages.Items.Count
+        pbStatus.Value = 0
+
+        Dim inputPDF As PdfDocument = Nothing
+        Dim currentFile As String = ""
+
+        For Each page As PDFPage In lstPages.Items
+            'lstPages.SelectedIndex = pbStatus.Value
+
+            If currentFile <> page.Filename Then
+                inputPDF = PdfReader.Open(page.Filename, PdfDocumentOpenMode.Import)
             End If
-        End If
+            Dim outPage = outputPDF.AddPage(inputPDF.Pages(page.PageNumber - 1))
+            Dim g As XGraphics = XGraphics.FromPdfPage(outPage)
+            Dim f As XFont = New XFont("Arial", 10, XFontStyle.Regular)
+            pbStatus.Value += 1
+            g.DrawString("Page " & pbStatus.Value & " / " & lstPages.Items.Count & ": " & page.Topic, f, XBrushes.Black, New XRect(0, 0, outPage.Width, outPage.Height), XStringFormats.BottomCenter)
 
-        If txtOutput.Text <> "" Then
-            'Dim inputPDF As PdfDocument = PdfReader.Open(currentFile)
-            Dim outputPDF As PdfDocument = New PdfDocument()
 
-            pbStatus.Visible = True
-            pbStatus.Maximum = lstPages.Items.Count
-            pbStatus.Value = 0
 
-            Dim inputPDF As PdfDocument = Nothing
-            Dim currentFile As String = ""
-            For Each page As PDFPage In lstPages.Items
-                'lstPages.SelectedIndex = pbStatus.Value
+            Application.DoEvents()
+        Next
+        outputPDF.Save(filename)
+        pbStatus.Visible = False
+    End Sub
 
-                If currentFile <> page.Filename Then
-                    inputPDF = PdfReader.Open(page.Filename, PdfDocumentOpenMode.Import)
-                End If
-                outputPDF.AddPage(inputPDF.Pages(page.PageNumber - 1))
-
-                pbStatus.Value += 1
-                Application.DoEvents()
-            Next
-            outputPDF.Save(txtOutput.Text)
-            pbStatus.Visible = False
+    Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
+        Dim dlg As New SaveFileDialog
+        dlg.Filter = "PDF Files|*.pdf"
+        If dlg.ShowDialog() = DialogResult.OK Then
+            SavePDF(dlg.FileName)
         End If
     End Sub
 
@@ -168,13 +177,19 @@ Public Class Form1
     Private Sub lstPages_DragDrop_1(sender As Object, e As DragEventArgs) Handles lstPages.DragDrop
 
         Dim filenames() As String = e.Data.GetData(DataFormats.FileDrop)
+        pbStatus.Visible = True
+        pbStatus.Value = 0
+        pbStatus.Maximum = filenames.Count
         For Each filename As String In filenames
             LoadPDF(filename)
             For Each item As ListViewItem In lstPreview.Items
                 item.Selected = True
             Next
             AddSelected()
+            pbStatus.Value += 1
+            Application.DoEvents()
         Next
+        pbStatus.Visible = False
 
 
     End Sub
